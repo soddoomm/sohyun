@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>이미지 비교 슬라이더</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #f0f0f0;
+    }
+
+    .container {
+      position: relative;
+      width: 90%;
+      max-width: 2000px;
+      height: 3000px;
+      overflow: hidden;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .container img {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    .after {
+      clip-path: inset(0 50% 0 0);
+    }
+
+    .slider-wrapper {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 100%;
+      z-index: 10;
+      cursor: ew-resize;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      touch-action: none;
+    }
+
+    .slider-line {
+      width: 4px;
+      height: 100%;
+      background: #000;
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      stroke-width: 2;
+      fill: none;
+      pointer-events: none;
+    }
+
+    .arrow-left {
+      left: -25px;
+    }
+
+    .arrow-right {
+      right: -25px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="sliderContainer">
+  <!-- 원본 이미지 -->
+  <img src="./KakaoTalk_20250507_122151666.jpg" alt="Before">
+  
+  <!-- 비교할 이미지 -->
+  <img src="./KakaoTalk_20250507_122151666_01.jpg" class="after" id="afterImg" alt="After">
+
+  <!-- 슬라이더 핸들 -->
+  <div class="slider-wrapper" id="sliderWrapper">
+    <div class="slider-line"></div>
+
+    <!-- 왼쪽 화살표 -->
+    <svg class="arrow arrow-left" viewBox="0 0 24 24">
+      <polyline points="15 18 9 12 15 6"></polyline>
+    </svg>
+
+    <!-- 오른쪽 화살표 -->
+    <svg class="arrow arrow-right" viewBox="0 0 24 24">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </div>
+</div>
+
+<script>
+  const container = document.getElementById('sliderContainer');
+  const afterImg = document.getElementById('afterImg');
+  const sliderWrapper = document.getElementById('sliderWrapper');
+
+  let isDragging = false;
+
+  function updateSlider(x) {
+    const rect = container.getBoundingClientRect();
+    let offsetX = x - rect.left;
+    offsetX = Math.max(0, Math.min(offsetX, rect.width));
+    const percent = (offsetX / rect.width) * 100;
+    afterImg.style.clipPath = `inset(0 ${100 - percent}% 0 0)`;
+    sliderWrapper.style.left = `${percent}%`;
+  }
+
+  // 마우스 이벤트
+  container.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    updateSlider(e.clientX);
+  });
+
+  window.addEventListener('mouseup', () => {
+    isDragging = false;
+  });
+
+  window.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+      updateSlider(e.clientX);
+    }
+  });
+
+  // 터치 이벤트
+  container.addEventListener('touchstart', (e) => {
+    isDragging = true;
+    if (e.touches.length === 1) updateSlider(e.touches[0].clientX);
+  });
+
+  window.addEventListener('touchend', () => {
+    isDragging = false;
+  });
+
+  window.addEventListener('touchmove', (e) => {
+    if (isDragging && e.touches.length === 1) {
+      updateSlider(e.touches[0].clientX);
+    }
+  });
+</script>
+
+</body>
+</html>
